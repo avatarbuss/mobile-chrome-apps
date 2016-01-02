@@ -90,12 +90,14 @@ class PlugIn:
 import transports,dispatcher,auth,roster
 class CommonClient:
     """ Base for Client and Component classes."""
-    def __init__(self,server,port=5222,debug=['always', 'nodebuilder']):
+    def __init__(self,server,port=5222,debug=None):
         """ Caches server name and (optionally) port to connect to. "debug" parameter specifies
             the debug IDs that will go into debug output. You can either specifiy an "include"
             or "exclude" list. The latter is done via adding "always" pseudo-ID to the list.
             Full list: ['nodebuilder', 'dispatcher', 'gen_auth', 'SASL_auth', 'bind', 'socket', 
              'CONNECTproxy', 'TLS', 'roster', 'browser', 'ibb'] . """
+        if debug is None:
+            debug = ['always', 'nodebuilder']
         if self.__class__.__name__=='Client': self.Namespace,self.DBG='jabber:client',DBG_CLIENT
         elif self.__class__.__name__=='Component': self.Namespace,self.DBG=dispatcher.NS_COMPONENT_ACCEPT,DBG_COMPONENT
         self.defaultNamespace=self.Namespace
@@ -136,8 +138,10 @@ class CommonClient:
             override this method or at least unregister it. """
         raise IOError('Disconnected from server.')
 
-    def event(self,eventName,args={}):
+    def event(self,eventName,args=None):
         """ Default event handler. To be overriden. """
+        if args is None:
+            args = {}
         print "Event: ",(eventName,args)
 
     def isConnected(self):
@@ -251,7 +255,7 @@ class Client(CommonClient):
 
 class Component(CommonClient):
     """ Component class. The only difference from CommonClient is ability to perform component authentication. """
-    def __init__(self,transport,port=5347,typ=None,debug=['always', 'nodebuilder'],domains=None,sasl=0,bind=0,route=0,xcp=0):
+    def __init__(self,transport,port=5347,typ=None,debug=None,domains=None,sasl=0,bind=0,route=0,xcp=0):
         """ Init function for Components.
             As components use a different auth mechanism which includes the namespace of the component.
             Jabberd1.4 and Ejabberd use the default namespace then for all client messages.
@@ -263,6 +267,8 @@ class Component(CommonClient):
             in the 'domains' argument.
             For jabberd2 servers you should set typ='jabberd2' argument.
         """
+        if debug is None:
+            debug = ['always', 'nodebuilder']
         CommonClient.__init__(self,transport,port=port,debug=debug)
         self.typ=typ
         self.sasl=sasl

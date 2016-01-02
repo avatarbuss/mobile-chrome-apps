@@ -49,7 +49,7 @@ class Node(object):
         replication (and using replication only to move upwards on the classes tree).
     """
     FORCE_NODE_RECREATION=0
-    def __init__(self, tag=None, attrs={}, payload=[], parent=None, nsp=None, node_built=False, node=None):
+    def __init__(self, tag=None, attrs=None, payload=None, parent=None, nsp=None, node_built=False, node=None):
         """ Takes "tag" argument as the name of node (prepended by namespace, if needed and separated from it
             by a space), attrs dictionary as the set of arguments, payload list as the set of textual strings
             and child nodes that this node carries within itself and "parent" argument that is another node
@@ -57,6 +57,10 @@ class Node(object):
             either a text string containing exactly one node or another Node instance to begin with. If both
             "node" and other arguments is provided then the node initially created as replica of "node"
             provided and then modified to be compliant with other arguments."""
+        if attrs is None:
+            attrs = {}
+        if payload is None:
+            payload = []
         if node:
             if self.FORCE_NODE_RECREATION and isinstance(node, Node):
                 node=str(node)
@@ -153,9 +157,13 @@ class Node(object):
                 cnt=cnt+1
         if (len(self.data)-1) >= cnt: s = s + self.data[cnt]
         return s
-    def addChild(self, name=None, attrs={}, payload=[], namespace=None, node=None):
+    def addChild(self, name=None, attrs=None, payload=None, namespace=None, node=None):
         """ If "node" argument is provided, adds it as child node. Else creates new node from
             the other arguments' values and adds it as well."""
+        if attrs is None:
+            attrs = {}
+        if payload is None:
+            payload = []
         if 'xmlns' in attrs:
             raise AttributeError("Use namespace=x instead of attrs={'xmlns':x}")
         if node:
@@ -177,9 +185,11 @@ class Node(object):
     def delAttr(self, key):
         """ Deletes an attribute "key" """
         del self.attrs[key]
-    def delChild(self, node, attrs={}):
+    def delChild(self, node, attrs=None):
         """ Deletes the "node" from the node's childs list, if "node" is an instance.
             Else deletes the first node that have specified name and (optionally) attributes. """
+        if attrs is None:
+            attrs = {}
         if not isinstance(node, Node): node=self.getTag(node,attrs)
         self.kids[self.kids.index(node)]=None
         return node
@@ -214,9 +224,11 @@ class Node(object):
             if i < len(self.data) and self.data[i]: ret.append(self.data[i])
             if i < len(self.kids) and self.kids[i]: ret.append(self.kids[i])
         return ret
-    def getTag(self, name, attrs={}, namespace=None): 
+    def getTag(self, name, attrs=None, namespace=None): 
         """ Filters all child nodes using specified arguments as filter.
             Returns the first found or None if not found. """
+        if attrs is None:
+            attrs = {}
         return self.getTags(name, attrs, namespace, one=1)
     def getTagAttr(self,tag,attr):
         """ Returns attribute value of the child with specified name (or None if no such attribute)."""
@@ -226,9 +238,11 @@ class Node(object):
         """ Returns cocatenated CDATA of the child with specified name."""
         try: return self.getTag(tag).getData()
         except: return None
-    def getTags(self, name, attrs={}, namespace=None, one=0):
+    def getTags(self, name, attrs=None, namespace=None, one=0):
         """ Filters all child nodes using specified arguments as filter.
             Returns the list of nodes found. """
+        if attrs is None:
+            attrs = {}
         nodes=[]
         for node in self.kids:
             if not node: continue
@@ -240,8 +254,10 @@ class Node(object):
             if one and nodes: return nodes[0]
         if not one: return nodes
 
-    def iterTags(self, name, attrs={}, namespace=None):
+    def iterTags(self, name, attrs=None, namespace=None):
         """ Iterate over all children using specified arguments as filter. """
+        if attrs is None:
+            attrs = {}
         for node in self.kids:
             if not node: continue
             if namespace is not None and namespace!=node.getNamespace(): continue
@@ -274,9 +290,11 @@ class Node(object):
         if isinstance(payload, basestring): payload=[payload]
         if add: self.kids+=payload
         else: self.kids=payload
-    def setTag(self, name, attrs={}, namespace=None):
+    def setTag(self, name, attrs=None, namespace=None):
         """ Same as getTag but if the node with specified namespace/attributes not found, creates such
             node and returns it. """
+        if attrs is None:
+            attrs = {}
         node=self.getTags(name, attrs, namespace=namespace, one=1)
         if node: return node
         else: return self.addChild(name, attrs, namespace=namespace)
@@ -285,9 +303,11 @@ class Node(object):
             and sets it's attribute "attr" to value "val". """
         try: self.getTag(tag).attrs[attr]=val
         except: self.addChild(tag,attrs={attr:val})
-    def setTagData(self,tag,val,attrs={}):
+    def setTagData(self,tag,val,attrs=None):
         """ Creates new node (if not already present) with name "tag" and (optionally) attributes "attrs"
             and sets it's CDATA to string "val". """
+        if attrs is None:
+            attrs = {}
         try: self.getTag(tag,attrs).setData(ustr(val))
         except: self.addChild(tag,attrs,payload=[ustr(val)])
     def has_attr(self,key):
