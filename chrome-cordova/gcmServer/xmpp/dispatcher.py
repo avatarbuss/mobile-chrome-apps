@@ -336,9 +336,11 @@ class Dispatcher(PlugIn):
         """ Put stanza on the wire and wait for recipient's response to it. """
         return self.WaitForResponse(self.send(stanza),timeout)
 
-    def SendAndCallForResponse(self, stanza, func, args={}):
+    def SendAndCallForResponse(self, stanza, func, args=None):
         """ Put stanza on the wire and call back when recipient replies.
             Additional callback arguments can be specified in args. """
+        if args is None:
+            args = {}
         self._expected[self.send(stanza)]=(func,args)
 
     def send(self,stanza):
