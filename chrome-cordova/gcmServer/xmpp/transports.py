@@ -98,7 +98,7 @@ class TCPsocket(PlugIn):
                             port = int(port)
                             break
                 except:
-                    self.DEBUG('An error occurred while looking up %s' % query, 'warn')
+                    self.DEBUG('An error occurred while looking up {0!s}'.format(query), 'warn')
             server = (host, port)
         else:
             self.DEBUG("Could not load one of the supported DNS libraries (dnspython or pydns). SRV records will not be queried and you may need to set custom hostname/port for some servers to be accessible.\n",'warn')
@@ -133,10 +133,10 @@ class TCPsocket(PlugIn):
             self._sock.connect((server[0], int(server[1])))
             self._send=self._sock.sendall
             self._recv=self._sock.recv
-            self.DEBUG("Successfully connected to remote host %s"%`server`,'start')
+            self.DEBUG("Successfully connected to remote host {0!s}".format(`server`),'start')
             return 'ok'
         except socket.error, (errno, strerror): 
-            self.DEBUG("Failed to connect to remote host %s: %s (%s)"%(`server`, strerror, errno),'error')
+            self.DEBUG("Failed to connect to remote host {0!s}: {1!s} ({2!s})".format(`server`, strerror, errno),'error')
         except: pass
 
     def plugout(self):
@@ -233,13 +233,13 @@ class HTTPPROXYsocket(TCPsocket):
             connection to the target server. Returns non-empty sting on success. """
         if not TCPsocket.connect(self,(self._proxy['host'],self._proxy['port'])): return
         self.DEBUG("Proxy server contacted, performing authentification",'start')
-        connector = ['CONNECT %s:%s HTTP/1.0'%self._server,
+        connector = ['CONNECT {0!s}:{1!s} HTTP/1.0'.format(*self._server),
             'Proxy-Connection: Keep-Alive',
             'Pragma: no-cache',
-            'Host: %s:%s'%self._server,
+            'Host: {0!s}:{1!s}'.format(*self._server),
             'User-Agent: HTTPPROXYsocket/v0.1']
         if self._proxy.has_key('user') and self._proxy.has_key('password'):
-            credentials = '%s:%s'%(self._proxy['user'],self._proxy['password'])
+            credentials = '{0!s}:{1!s}'.format(self._proxy['user'], self._proxy['password'])
             credentials = base64.encodestring(credentials).strip()
             connector.append('Proxy-Authorization: Basic '+credentials)
         connector.append('\r\n')
@@ -252,7 +252,7 @@ class HTTPPROXYsocket(TCPsocket):
         try: proto,code,desc=reply.split('\n')[0].split(' ',2)
         except: raise error('Invalid proxy reply')
         if code<>'200':
-            self.DEBUG('Invalid proxy reply: %s %s %s'%(proto,code,desc),'error')
+            self.DEBUG('Invalid proxy reply: {0!s} {1!s} {2!s}'.format(proto, code, desc),'error')
             self._owner.disconnected()
             return
         while reply.find('\n\n') == -1:
@@ -301,7 +301,7 @@ class TLS(PlugIn):
         self.DEBUG("TLS supported by remote server. Requesting TLS start.",'ok')
         self._owner.RegisterHandlerOnce('proceed',self.StartTLSHandler,xmlns=NS_TLS)
         self._owner.RegisterHandlerOnce('failure',self.StartTLSHandler,xmlns=NS_TLS)
-        self._owner.Connection.send('<starttls xmlns="%s"/>'%NS_TLS)
+        self._owner.Connection.send('<starttls xmlns="{0!s}"/>'.format(NS_TLS))
         raise NodeProcessed
 
     def pending_data(self,timeout=0):

@@ -69,7 +69,7 @@ class Roster(PlugIn):
             if item.getAttr('subscription')=='remove':
                 if self._data.has_key(jid): del self._data[jid]
                 raise NodeProcessed             # a MUST
-            self.DEBUG('Setting roster item %s...'%jid,'ok')
+            self.DEBUG('Setting roster item {0!s}...'.format(jid),'ok')
             if not self._data.has_key(jid): self._data[jid]={}
             self._data[jid]['name']=item.getAttr('name')
             self._data[jid]['ask']=item.getAttr('ask')
@@ -91,7 +91,7 @@ class Roster(PlugIn):
         typ=pres.getType()
 
         if not typ:
-            self.DEBUG('Setting roster item %s for resource %s...'%(jid.getStripped(),jid.getResource()),'ok')
+            self.DEBUG('Setting roster item {0!s} for resource {1!s}...'.format(jid.getStripped(), jid.getResource()),'ok')
             item['resources'][jid.getResource()]=res={'show':None,'status':None,'priority':'0','timestamp':None}
             if pres.getTag('show'): res['show']=pres.getShow()
             if pres.getTag('status'): res['status']=pres.getStatus()

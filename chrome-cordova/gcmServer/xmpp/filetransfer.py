@@ -48,7 +48,7 @@ class IBB(PlugIn):
     def IqHandler(self,conn,stanza):
         """ Handles streams state change. Used internally. """
         typ=stanza.getType()
-        self.DEBUG('IqHandler called typ->%s'%typ,'info')
+        self.DEBUG('IqHandler called typ->{0!s}'.format(typ),'info')
         if typ=='set' and stanza.getTag('open',namespace=NS_IBB): self.StreamOpenHandler(conn,stanza)
         elif typ=='set' and stanza.getTag('close',namespace=NS_IBB): self.StreamCloseHandler(conn,stanza)
         elif typ=='result': self.StreamCommitHandler(conn,stanza)
@@ -70,14 +70,14 @@ class IBB(PlugIn):
 """
         err=None
         sid,blocksize=stanza.getTagAttr('open','sid'),stanza.getTagAttr('open','block-size')
-        self.DEBUG('StreamOpenHandler called sid->%s blocksize->%s'%(sid,blocksize),'info')
+        self.DEBUG('StreamOpenHandler called sid->{0!s} blocksize->{1!s}'.format(sid, blocksize),'info')
         try: blocksize=int(blocksize)
         except: err=ERR_BAD_REQUEST
         if not sid or not blocksize: err=ERR_BAD_REQUEST
         elif sid in self._streams.keys(): err=ERR_UNEXPECTED_REQUEST
         if err: rep=Error(stanza,err)
         else:
-            self.DEBUG("Opening stream: id %s, block-size %s"%(sid,blocksize),'info')
+            self.DEBUG("Opening stream: id {0!s}, block-size {1!s}".format(sid, blocksize),'info')
             rep=Protocol('iq',stanza.getFrom(),'result',stanza.getTo(),{'id':stanza.getID()})
             self._streams[sid]={'direction':'<'+str(stanza.getFrom()),'block-size':blocksize,'fp':open('/tmp/xmpp_file_'+sid,'w'),'seq':0,'syn_id':stanza.getID()}
         conn.send(rep)
@@ -139,7 +139,7 @@ class IBB(PlugIn):
             it to temporary file. Used internally.
         """
         sid,seq,data=stanza.getTagAttr('data','sid'),stanza.getTagAttr('data','seq'),stanza.getTagData('data')
-        self.DEBUG('ReceiveHandler called sid->%s seq->%s'%(sid,seq),'info')
+        self.DEBUG('ReceiveHandler called sid->{0!s} seq->{1!s}'.format(sid, seq),'info')
         try: seq=int(seq); data=base64.decodestring(data)
         except: seq=''; data=''
         err=None
@@ -149,18 +149,18 @@ class IBB(PlugIn):
             if not data: err=ERR_BAD_REQUEST
             elif seq<>stream['seq']: err=ERR_UNEXPECTED_REQUEST
             else:
-                self.DEBUG('Successfull receive sid->%s %s+%s bytes'%(sid,stream['fp'].tell(),len(data)),'ok')
+                self.DEBUG('Successfull receive sid->{0!s} {1!s}+{2!s} bytes'.format(sid, stream['fp'].tell(), len(data)),'ok')
                 stream['seq']+=1
                 stream['fp'].write(data)
         if err:
-            self.DEBUG('Error on receive: %s'%err,'error')
+            self.DEBUG('Error on receive: {0!s}'.format(err),'error')
             conn.send(Error(Iq(to=stanza.getFrom(),frm=stanza.getTo(),payload=[Node(NS_IBB+' close')]),err,reply=0))
 
     def StreamCloseHandler(self,conn,stanza):
         """ Handle stream closure due to all data transmitted.
             Raise xmpppy event specifying successfull data receive. """
         sid=stanza.getTagAttr('close','sid')
-        self.DEBUG('StreamCloseHandler called sid->%s'%sid,'info')
+        self.DEBUG('StreamCloseHandler called sid->{0!s}'.format(sid),'info')
         if sid in self._streams.keys():
             conn.send(stanza.buildReply('result'))
             conn.Event(self.DBG_LINE,'SUCCESSFULL RECEIVE',self._streams[sid])
@@ -171,7 +171,7 @@ class IBB(PlugIn):
         """ Handle stream closure due to all some error while receiving data.
             Raise xmpppy event specifying unsuccessfull data receive. """
         syn_id=stanza.getID()
-        self.DEBUG('StreamBrokenHandler called syn_id->%s'%syn_id,'info')
+        self.DEBUG('StreamBrokenHandler called syn_id->{0!s}'.format(syn_id),'info')
         for sid in self._streams.keys():
             stream=self._streams[sid]
             if stream['syn_id']==syn_id:
@@ -184,7 +184,7 @@ class IBB(PlugIn):
             Used internally. Raises xmpppy event specfiying if the data transfer
             is agreed upon."""
         syn_id=stanza.getID()
-        self.DEBUG('StreamOpenReplyHandler called syn_id->%s'%syn_id,'info')
+        self.DEBUG('StreamOpenReplyHandler called syn_id->{0!s}'.format(syn_id),'info')
         for sid in self._streams.keys():
             stream=self._streams[sid]
             if stream['syn_id']==syn_id:

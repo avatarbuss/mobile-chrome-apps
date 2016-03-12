@@ -118,10 +118,10 @@ class Node(object):
         if self.namespace:
             if not self.parent or self.parent.namespace!=self.namespace:
                 if 'xmlns' not in self.attrs:
-                    s = s + ' xmlns="%s"'%self.namespace
+                    s = s + ' xmlns="{0!s}"'.format(self.namespace)
         for key in self.attrs.keys():
             val = ustr(self.attrs[key])
-            s = s + ' %s="%s"' % ( key, XMLescape(val) )
+            s = s + ' {0!s}="{1!s}"'.format(key, XMLescape(val) )
         s = s + ">"
         cnt = 0
         if self.kids:
@@ -403,7 +403,7 @@ class NodeBuilder:
         """XML Parser callback. Used internally"""
         self.check_data_buffer()
         self._inc_depth()
-        self.DEBUG(DBG_NODEBUILDER, "DEPTH -> %i , tag -> %s, attrs -> %s" % (self.__depth, tag, `attrs`), 'down')
+        self.DEBUG(DBG_NODEBUILDER, "DEPTH -> {0:d} , tag -> {1!s}, attrs -> {2!s}".format(self.__depth, tag, `attrs`), 'down')
         if self.__depth == self._dispatch_depth:
             if not self._mini_dom :
                 self._mini_dom = Node(tag=tag, attrs=attrs, nsp = self._document_nsp, node_built=True)
@@ -436,7 +436,7 @@ class NodeBuilder:
 
     def endtag(self, tag ):
         """XML Parser callback. Used internally"""
-        self.DEBUG(DBG_NODEBUILDER, "DEPTH -> %i , tag -> %s" % (self.__depth, tag), 'up')
+        self.DEBUG(DBG_NODEBUILDER, "DEPTH -> {0:d} , tag -> {1!s}".format(self.__depth, tag), 'up')
         self.check_data_buffer()
         if self.__depth == self._dispatch_depth:
             if self._mini_dom.getName() == 'error':

@@ -214,7 +214,7 @@ class Command_Handler_Prototype(PlugIn):
     def getSessionID(self):
         """Returns an id for the command session"""
         self.count = self.count+1
-        return 'cmd-%s-%d'%(self.name,self.count)
+        return 'cmd-{0!s}-{1:d}'.format(self.name, self.count)
 
     def Execute(self,conn,request):
         """The method that handles all the commands, and routes them to the correct method for that stage."""

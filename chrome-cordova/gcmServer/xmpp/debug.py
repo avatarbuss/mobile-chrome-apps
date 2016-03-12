@@ -185,7 +185,7 @@ class Debug:
             self._fh = sys.stdout
          
         if time_stamp not in (0,1,2):
-            msg2 = '%s' % time_stamp
+            msg2 = '{0!s}'.format(time_stamp)
             raise 'Invalid time_stamp param', msg2
         self.prefix = prefix
         self.sufix = sufix
@@ -198,17 +198,17 @@ class Debug:
             self.show('')
             caller = sys._getframe(1) # used to get name of caller
             try:
-                mod_name= ":%s" % caller.f_locals['__name__']
+                mod_name= ":{0!s}".format(caller.f_locals['__name__'])
             except:
                 mod_name = ""
-            self.show('Debug created for %s%s' % (caller.f_code.co_filename,
+            self.show('Debug created for {0!s}{1!s}'.format(caller.f_code.co_filename,
                                                    mod_name ))
-            self.show(' flags defined: %s' % ','.join( self.active ))
+            self.show(' flags defined: {0!s}'.format(','.join( self.active )))
             
         if type(flag_show) in (type(''), type(None)):
             self.flag_show = flag_show
         else:
-            msg2 = '%s' % type(flag_show )
+            msg2 = '{0!s}'.format(type(flag_show ))
             raise 'Invalid type for flag_show!', msg2
 
 
@@ -245,27 +245,27 @@ class Debug:
             suf = self.sufix
 
         if self.time_stamp == 2:
-            output = '%s%s ' % ( pre,
+            output = '{0!s}{1!s} '.format(pre,
                                  time.strftime('%b %d %H:%M:%S',
-                                 time.localtime(time.time() )),
+                                 time.localtime(time.time() ))
                                  )
         elif self.time_stamp == 1:
-            output = '%s %s' % ( time.strftime('%b %d %H:%M:%S',
+            output = '{0!s} {1!s}'.format(time.strftime('%b %d %H:%M:%S',
                                  time.localtime(time.time() )),
-                                 pre,
+                                 pre
                                  )
         else:
             output = pre
             
         if self.flag_show:
             if flag:
-                output = '%s%s%s' % ( output, flag, self.flag_show )
+                output = '{0!s}{1!s}{2!s}'.format(output, flag, self.flag_show )
             else:
                 # this call uses the global default,
                 # dont print "None", just show the separator
-                output = '%s %s' % ( output, self.flag_show )
+                output = '{0!s} {1!s}'.format(output, self.flag_show )
 
-        output = '%s%s%s' % ( output, msg, suf )
+        output = '{0!s}{1!s}{2!s}'.format(output, msg, suf )
         if lf:
             # strip/add lf if needed
             last_char = output[-1]
@@ -284,7 +284,7 @@ class Debug:
                 else:
                     c = '?'
                 s=s+c
-            self._fh.write( '%s%s%s' % ( pre, s, suf ))
+            self._fh.write( '{0!s}{1!s}{2!s}'.format(pre, s, suf ))
         self._fh.flush()
             
                 
@@ -316,7 +316,7 @@ class Debug:
             flags = self._as_one_list( active_flags )
             for t in flags:
                 if t not in self.debug_flags:
-                    sys.stderr.write('Invalid debugflag given: %s\n' % t )
+                    sys.stderr.write('Invalid debugflag given: {0!s}\n'.format(t) )
                 ok_flags.append( t )
                 
             self.active = ok_flags
@@ -327,7 +327,7 @@ class Debug:
                 flags = active_flags.split(',')
             except:
                 self.show( '***' )
-                self.show( '*** Invalid debug param given: %s' % active_flags )
+                self.show( '*** Invalid debug param given: {0!s}'.format(active_flags) )
                 self.show( '*** please correct your param!' )
                 self.show( '*** due to this, full debuging is enabled' )
                 self.active = self.debug_flags
@@ -368,7 +368,7 @@ class Debug:
     def _append_unique_str( self, lst, item ):
         """filter out any dupes."""
         if type(item) <> type(''):
-            msg2 = '%s' % item
+            msg2 = '{0!s}'.format(item)
             raise 'Invalid item type (should be string)',msg2
         if item not in lst:
             lst.append( item )
@@ -380,7 +380,7 @@ class Debug:
         if flags:
             for f in self._as_one_list( flags ):
                 if not f in self.debug_flags:
-                    msg2 = '%s' % f
+                    msg2 = '{0!s}'.format(f)
                     raise 'Invalid debugflag given', msg2
 
     def _remove_dupe_flags( self ):
