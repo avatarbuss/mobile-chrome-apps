@@ -157,7 +157,7 @@ class Browser(PlugIn):
                 # elif TYR=='info': # returns info dictionary of the same format as shown above
                 # else: # this case is impossible for now.
         """
-        self.DEBUG('Registering handler %s for "%s" node->%s'%(handler,jid,node), 'info')
+        self.DEBUG('Registering handler {0!s} for "{1!s}" node->{2!s}'.format(handler, jid, node), 'info')
         node,key=self._traversePath(node,jid,1)
         node[key]=handler
 
@@ -191,10 +191,10 @@ class Browser(PlugIn):
             nodestr='None'
         handler=self.getDiscoHandler(node,request.getTo())
         if not handler:
-            self.DEBUG("No Handler for request with jid->%s node->%s ns->%s"%(request.getTo().__str__().encode('utf8'),nodestr.encode('utf8'),request.getQueryNS().encode('utf8')),'error')
+            self.DEBUG("No Handler for request with jid->{0!s} node->{1!s} ns->{2!s}".format(request.getTo().__str__().encode('utf8'), nodestr.encode('utf8'), request.getQueryNS().encode('utf8')),'error')
             conn.send(Error(request,ERR_ITEM_NOT_FOUND))
             raise NodeProcessed
-        self.DEBUG("Handling request with jid->%s node->%s ns->%s"%(request.getTo().__str__().encode('utf8'),nodestr.encode('utf8'),request.getQueryNS().encode('utf8')),'ok')
+        self.DEBUG("Handling request with jid->{0!s} node->{1!s} ns->{2!s}".format(request.getTo().__str__().encode('utf8'), nodestr.encode('utf8'), request.getQueryNS().encode('utf8')),'ok')
         rep=request.buildReply('result')
         if node: rep.setQuerynode(node)
         q=rep.getTag('query')

@@ -97,11 +97,11 @@ class Dispatcher(PlugIn):
         self._metastream.setAttr('version','1.0')
         self._metastream.setAttr('xmlns:stream',NS_STREAMS)
         self._metastream.setAttr('to',self._owner.Server)
-        self._owner.send("<?xml version='1.0'?>%s>"%str(self._metastream)[:-2])
+        self._owner.send("<?xml version='1.0'?>{0!s}>".format(str(self._metastream)[:-2]))
 
     def _check_stream_start(self,ns,tag,attrs):
         if ns<>NS_STREAMS or tag<>'stream':
-            raise ValueError('Incorrect stream start: (%s,%s). Terminating.'%(tag,ns))
+            raise ValueError('Incorrect stream start: ({0!s},{1!s}). Terminating.'.format(tag, ns))
 
     def Process(self, timeout=0):
         """ Check incoming stream for data waiting. If "timeout" is positive - block for as max. this time.
@@ -130,7 +130,7 @@ class Dispatcher(PlugIn):
         """ Creates internal structures for newly registered namespace.
             You can register handlers for this namespace afterwards. By default one namespace
             already registered (jabber:client or jabber:component:accept depending on context. """
-        self.DEBUG('Registering namespace "%s"'%xmlns,order)
+        self.DEBUG('Registering namespace "{0!s}"'.format(xmlns),order)
         self.handlers[xmlns]={}
         self.RegisterProtocol('unknown',Protocol,xmlns=xmlns)
         self.RegisterProtocol('default',Protocol,xmlns=xmlns)
@@ -140,7 +140,7 @@ class Dispatcher(PlugIn):
            Needed to start registering handlers for such stanzas.
            Iq, message and presence protocols are registered by default. """
         if not xmlns: xmlns=self._owner.defaultNamespace
-        self.DEBUG('Registering protocol "%s" as %s(%s)'%(tag_name,Proto,xmlns), order)
+        self.DEBUG('Registering protocol "{0!s}" as {1!s}({2!s})'.format(tag_name, Proto, xmlns), order)
         self.handlers[xmlns][tag_name]={type:Proto, 'default':[]}
 
     def RegisterNamespaceHandler(self,xmlns,handler,typ='',ns='', makefirst=0, system=0):
@@ -166,7 +166,7 @@ class Dispatcher(PlugIn):
               "system" - call handler even if NodeProcessed Exception were raised already.
             """
         if not xmlns: xmlns=self._owner.defaultNamespace
-        self.DEBUG('Registering handler %s for "%s" type->%s ns->%s(%s)'%(handler,name,typ,ns,xmlns), 'info')
+        self.DEBUG('Registering handler {0!s} for "{1!s}" type->{2!s} ns->{3!s}({4!s})'.format(handler, name, typ, ns, xmlns), 'info')
         if not typ and not ns: typ='default'
         if not self.handlers.has_key(xmlns): self.RegisterNamespace(xmlns,'warn')
         if not self.handlers[xmlns].has_key(name): self.RegisterProtocol(name,Protocol,xmlns,'warn')
@@ -263,7 +263,7 @@ class Dispatcher(PlugIn):
             self.DEBUG("Unknown stanza: " + name,'warn')
             name='unknown'
         else:
-            self.DEBUG("Got %s/%s stanza"%(xmlns,name), 'ok')
+            self.DEBUG("Got {0!s}/{1!s} stanza".format(xmlns, name), 'ok')
 
         if stanza.__class__.__name__=='Node': stanza=self.handlers[xmlns][name][type](node=stanza)
 
@@ -272,7 +272,7 @@ class Dispatcher(PlugIn):
         stanza.props=stanza.getProperties()
         ID=stanza.getID()
 
-        session.DEBUG("Dispatching %s stanza with type->%s props->%s id->%s"%(name,typ,stanza.props,ID),'ok')
+        session.DEBUG("Dispatching {0!s} stanza with type->{1!s} props->{2!s} id->{3!s}".format(name, typ, stanza.props, ID),'ok')
 
         list=['default']                                                     # we will use all handlers:
         if self.handlers[xmlns][name].has_key(typ): list.append(typ)                # from very common...
@@ -289,7 +289,7 @@ class Dispatcher(PlugIn):
             user=0
             if type(session._expected[ID])==type(()):
                 cb,args=session._expected[ID]
-                session.DEBUG("Expected stanza arrived. Callback %s(%s) found!"%(cb,args),'ok')
+                session.DEBUG("Expected stanza arrived. Callback {0!s}({1!s}) found!".format(cb, args),'ok')
                 try: cb(session,stanza,**args)
                 except Exception, typ:
                     if typ.__class__.__name__<>'NodeProcessed': raise
@@ -316,7 +316,7 @@ class Dispatcher(PlugIn):
         self._expected[ID]=None
         has_timed_out=0
         abort_time=time.time() + timeout
-        self.DEBUG("Waiting for ID:%s with timeout %s..." % (ID,timeout),'wait')
+        self.DEBUG("Waiting for ID:{0!s} with timeout {1!s}...".format(ID, timeout),'wait')
         while not self._expected[ID]:
             if not self.Process(0.04):
                 self._owner.lastErr="Disconnect"

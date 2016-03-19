@@ -142,7 +142,7 @@ class SASL(PlugIn):
         elif "DIGEST-MD5" in mecs:
             node=Node('auth',attrs={'xmlns':NS_SASL,'mechanism':'DIGEST-MD5'})
         elif "PLAIN" in mecs:
-            sasl_data='%s\x00%s\x00%s'%(self.username+'@'+self._owner.Server,self.username,self.password)
+            sasl_data='{0!s}\x00{1!s}\x00{2!s}'.format(self.username+'@'+self._owner.Server, self.username, self.password)
             node=Node('auth',attrs={'xmlns':NS_SASL,'mechanism':'PLAIN'},payload=[base64.encodestring(sasl_data).replace('\r','').replace('\n','')])
         else:
             self.startsasl='failure'
@@ -159,7 +159,7 @@ class SASL(PlugIn):
             self.startsasl='failure'
             try: reason=challenge.getChildren()[0]
             except: reason=challenge
-            self.DEBUG('Failed SASL authentification: %s'%reason,'error')
+            self.DEBUG('Failed SASL authentification: {0!s}'.format(reason),'error')
             raise NodeProcessed
         elif challenge.getName()=='success':
             self.startsasl='success'
@@ -198,8 +198,8 @@ class SASL(PlugIn):
             resp['charset']='utf-8'
             sasl_data=''
             for key in ['charset','username','realm','nonce','nc','cnonce','digest-uri','response','qop']:
-                if key in ['nc','qop','response','charset']: sasl_data+="%s=%s,"%(key,resp[key])
-                else: sasl_data+='%s="%s",'%(key,resp[key])
+                if key in ['nc','qop','response','charset']: sasl_data+="{0!s}={1!s},".format(key, resp[key])
+                else: sasl_data+='{0!s}="{1!s}",'.format(key, resp[key])
 ########################################3333
             node=Node('response',attrs={'xmlns':NS_SASL},payload=[base64.encodestring(sasl_data[:-1]).replace('\r','').replace('\n','')])
             self._owner.send(node.__str__())
@@ -245,7 +245,7 @@ class Bind(PlugIn):
         resp=self._owner.SendAndWaitForResponse(Protocol('iq',typ='set',payload=[Node('bind',attrs={'xmlns':NS_BIND},payload=resource)]))
         if isResultNode(resp):
             self.bound.append(resp.getTag('bind').getTagData('jid'))
-            self.DEBUG('Successfully bound %s.'%self.bound[-1],'ok')
+            self.DEBUG('Successfully bound {0!s}.'.format(self.bound[-1]),'ok')
             jid=JID(resp.getTag('bind').getTagData('jid'))
             self._owner.User=jid.getNode()
             self._owner.Resource=jid.getResource()
@@ -257,7 +257,7 @@ class Bind(PlugIn):
             else:
                 self.DEBUG('Session open failed.','error')
                 self.session=0
-        elif resp: self.DEBUG('Binding failed: %s.'%resp.getTag('error'),'error')
+        elif resp: self.DEBUG('Binding failed: {0!s}.'.format(resp.getTag('error')),'error')
         else:
             self.DEBUG('Binding failed: timeout expired.','error')
             return ''
@@ -313,7 +313,7 @@ class ComponentBind(PlugIn):
         self._owner.UnregisterHandler('bind',self.BindHandler,xmlns=xmlns)
         resp=self.bindresponse
         if resp and resp.getAttr('error'):
-            self.DEBUG('Binding failed: %s.'%resp.getAttr('error'),'error')
+            self.DEBUG('Binding failed: {0!s}.'.format(resp.getAttr('error')),'error')
         elif resp:
             self.DEBUG('Successfully bound.','ok')
             return 'ok'
